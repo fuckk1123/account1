@@ -98,30 +98,54 @@ def generate_custom_password(random_length=9):
     return F"FALCON{random_part}"
 
 def create_acc(region):
-    password = generate_custom_password()
-    data = f"password={password}&client_type=2&source=2&app_id=100067"
-    message = data.encode('utf-8')
-    signature = hmac.new(key, message, hashlib.sha256).hexdigest()
-
-    url = "https://100067.connect.garena.com/oauth/guest/register"
-
-    headers = {
-        "User-Agent": "GarenaMSDK/4.0.19P8(ASUS_Z01QD ;Android 12;en;US;)",
-        "Authorization": "Signature " + signature,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept-Encoding": "gzip",
-        "Connection": "Keep-Alive"
-    }
-
     try:
-        response = requests.post(url, headers=headers, data=data)
+        password = generate_custom_password()
+        data = f"password={password}&client_type=2&source=2&app_id=100067"
+        message = data.encode('utf-8')
+        signature = hmac.new(key, message, hashlib.sha256).hexdigest()
+
+        url = "https://100067.connect.garena.com/oauth/guest/register"
+
+        headers = {
+            "User-Agent": "GarenaMSDK/4.0.19P8(ASUS_Z01QD ;Android 12;en;US;)",
+            "Authorization": "Signature " + signature,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept-Encoding": "gzip",
+            "Connection": "Keep-Alive"
+        }
+
+        response = requests.post(url, headers=headers, data=data, timeout=30)
+        
+        # Debug logging
+        debug_info = {
+            "url": url,
+            "status_code": response.status_code,
+            "response_text": response.text[:500],  # First 500 chars
+            "headers": dict(response.headers),
+            "request_data": data
+        }
+        
+        print(f"DEBUG Account Creation: {debug_info}")
+        
         if response.status_code == 200:
-            uid = response.json().get('uid')
-            if uid:
-                return token(uid, password, region)
+            try:
+                json_response = response.json()
+                uid = json_response.get('uid')
+                if uid:
+                    return token(uid, password, region)
+                else:
+                    print(f"DEBUG: No UID in response: {json_response}")
+            except Exception as json_error:
+                print(f"DEBUG: JSON parse error: {json_error}")
+                print(f"DEBUG: Raw response: {response.text}")
+        else:
+            print(f"DEBUG: HTTP {response.status_code}: {response.text}")
+            
     except Exception as e:
-        pass
-    return None
+        print(f"DEBUG: Exception in create_acc: {str(e)}")
+        return {"error": str(e), "debug": "create_acc_failed"}
+    
+    return {"error": "Account creation failed", "debug": "no_uid_returned"}
 
 def token(uid , password , region):
     url = "https://100067.connect.garena.com/oauth/guest/token/grant"
