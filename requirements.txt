@@ -1,0 +1,7 @@
+requests
+pycryptodome
+colorama
+protobuf
+urllib3
+flask
+httpx
