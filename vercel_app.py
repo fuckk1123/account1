@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from gen import create_acc, REGION_URLS, get_region
+from standalone_gen import create_acc, REGION_URLS, get_region
 import time
 import json
 import os
@@ -66,6 +66,7 @@ def generate_accounts():
                         'region': region,
                         'game_uid': result.get('game_uid'),
                         'jwt_token': result.get('jwt_token'),
+                        'access_token': result.get('access_token'),
                         'created_at': time.strftime('%Y-%m-%d %H:%M:%S')
                     }
                     accounts.append(account_data)
@@ -173,12 +174,13 @@ def health_check():
 def home():
     return jsonify({
         'success': True,
-        'message': 'Free Fire Account Generator API (Vercel Version)',
+        'message': 'Free Fire Account Generator API (Vercel Fixed Version)',
         'platform': 'Vercel Serverless',
         'limitations': [
             'No background threading',
             'Maximum 10 accounts per request',
-            'Synchronous processing only'
+            'Synchronous processing only',
+            'No protobuf dependency'
         ],
         'endpoints': {
             'generate': '/gen?name=FALCON&count=1&region=IND',
