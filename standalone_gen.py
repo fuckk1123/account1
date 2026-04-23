@@ -89,13 +89,13 @@ def E_AEs(Pc):
 
 def generate_random_name():
     super_digits = '⁰¹²³⁴⁵⁶⁷⁸⁹'
-    name = 'NAJMI' + ''.join(random.choice(super_digits) for _ in range(5))
+    name = 'FALCON' + ''.join(random.choice(super_digits) for _ in range(5))
     return name
 
 def generate_custom_password(random_length=9):
     characters = string.ascii_letters + string.digits
     random_part = ''.join(random.choice(characters) for _ in range(random_length)).upper()
-    return F"NAJMI_FF_EXPERIMENT{random_part}"
+    return F"FALCON{random_part}"
 
 def create_acc(region):
     password = generate_custom_password()
